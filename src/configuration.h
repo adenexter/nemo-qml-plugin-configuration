@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Jolla Ltd. <robin.burchell@jollamobile.com>
+ * Copyright (C) 2013 Jolla Mobile <andrew.den.exter@jollamobile.com>
  *
  * You may use this file under the terms of the BSD license as follows:
  *
@@ -29,53 +29,54 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
  */
 
+#ifndef CONFIGURATION_H
+#define CONFIGURATION_H
+
 #include <QtGlobal>
+
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-# include <QtQml>
+# include <QObject>
 # include <QQmlEngine>
-# include <QQmlExtensionPlugin>
-# define QDeclarativeEngine QQmlEngine
-# define QDeclarativeExtensionPlugin QQmlExtensionPlugin
 #else
-# include <QtDeclarative>
-# include <QDeclarativeEngine>
-# include <QDeclarativeExtensionPlugin>
+# include <qdeclarative.h>
 #endif
 
-#include "configuration.h"
-#include "configurationgroup.h"
-#include "configurationvalue.h"
+#include <QVariant>
 
-class Q_DECL_EXPORT NemoConfigurationValuePlugin : public QDeclarativeExtensionPlugin
+#ifndef GCONF_DISABLED
+#include <gconf/gconf-value.h>
+#include <gconf/gconf-client.h>
+#endif
+
+class Configuration : public QObject
 {
     Q_OBJECT
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    Q_PLUGIN_METADATA(IID "org.nemomobile.configuration")
-#endif
-
 public:
-    virtual ~NemoConfigurationValuePlugin() { }
-
-    void registerTypes(const char *uri)
-    {
-#ifndef GCONF_DISABLED
-        g_type_init();
-#endif
-
-        Q_ASSERT(uri == QLatin1String("org.nemomobile.configuration"));
-        qmlRegisterType<ConfigurationGroup>(uri, 1, 0, "ConfigurationGroup");
-        qmlRegisterType<ConfigurationValue>(uri, 1, 0, "ConfigurationValue");
+    Configuration(QObject *parent = 0);
+    ~Configuration();
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-        qmlRegisterSingletonType<Configuration>(uri, 1, 0, "Configuration", Configuration::factory);
+    static QObject *factory(QQmlEngine *, QJSEngine *);
 #else
-        qmlRegisterUncreatableType<Configuration>(uri, 1, 0, "Configuration", QString());
+    static Configuration *qmlAttachedProperties(QObject *);
 #endif
-    }
+
+    Q_INVOKABLE QVariant read(const QString &key);
+    Q_INVOKABLE void write(const QString &key, const QVariant &value);
+    Q_INVOKABLE void clear(const QString &key);
+
+#ifndef GCONF_DISABLED
+    static QVariant toVariant(GConfValue *value, int typeHint = 0);
+    static GConfValue *fromVariant(const QVariant &variant);
+
+private:
+    GConfClient *m_client;
+#endif
 };
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-Q_EXPORT_PLUGIN2(nemoconfiguration, NemoConfigurationValuePlugin);
+QML_DECLARE_TYPE(Configuration)
+QML_DECLARE_TYPEINFO(Configuration, QML_HAS_ATTACHED_PROPERTIES)
 #endif
 
-#include "plugin.moc"
+#endif

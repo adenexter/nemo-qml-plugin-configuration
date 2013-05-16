@@ -14,6 +14,14 @@ PkgConfigBR:
     - Qt5Core
     - Qt5Qml
     - mlite5
+    - gconf-2.0
 Files:
     - "%{_libdir}/qt5/qml/org/nemomobile/configuration/libnemoconfiguration.so"
     - "%{_libdir}/qt5/qml/org/nemomobile/configuration/qmldir"
+SubPackages:
+    - Name: tests
+      Summary: Configuration plugin tests
+      Group: System/Libraries
+      Description: "%{summary}."
+      Files:
+        - "/opt/tests/nemo-qml-plugins/configuration-qt5/*"

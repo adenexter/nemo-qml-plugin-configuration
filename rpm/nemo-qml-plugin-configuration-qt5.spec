@@ -19,8 +19,17 @@ Source100:  nemo-qml-plugin-configuration-qt5.yaml
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(mlite5)
+BuildRequires:  pkgconfig(gconf-2.0)
 
 %description
+%{summary}.
+
+%package tests
+Summary:    Configuration plugin tests
+Group:      System/Libraries
+Requires:   %{name} = %{version}-%{release}
+
+%description tests
 %{summary}.
 
 %prep
@@ -55,3 +64,9 @@ rm -rf %{buildroot}
 %{_libdir}/qt5/qml/org/nemomobile/configuration/qmldir
 # >> files
 # << files
+
+%files tests
+%defattr(-,root,root,-)
+/opt/tests/nemo-qml-plugins/configuration-qt5/*
+# >> files tests
+# << files tests

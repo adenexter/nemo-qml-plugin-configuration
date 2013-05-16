@@ -19,10 +19,19 @@ Source100:  nemo-qml-plugin-configuration.yaml
 BuildRequires:  pkgconfig(QtCore) >= 4.7.0
 BuildRequires:  pkgconfig(QtDeclarative)
 BuildRequires:  pkgconfig(mlite)
+BuildRequires:  pkgconfig(gconf-2.0)
 Provides:   nemo-qml-plugins-configuration > 0.3.13
 Obsoletes:   nemo-qml-plugins-configuration <= 0.3.13
 
 %description
+%{summary}.
+
+%package tests
+Summary:    Configuration plugin tests
+Group:      System/Libraries
+Requires:   %{name} = %{version}-%{release}
+
+%description tests
 %{summary}.
 
 
@@ -59,3 +68,9 @@ rm -rf %{buildroot}
 %{_libdir}/qt4/imports/org/nemomobile/configuration/qmldir
 # >> files
 # << files
+
+%files tests
+%defattr(-,root,root,-)
+/opt/tests/nemo-qml-plugins/configuration/*
+# >> files tests
+# << files tests
